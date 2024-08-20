@@ -34,7 +34,6 @@ const createNew = async (reqBody) => {
 const getDetails = async (boardId) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    console.log(boardId)
 
     const board = await boardModel.getDetails(boardId)
     if (!board) {
