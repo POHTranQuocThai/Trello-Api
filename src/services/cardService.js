@@ -1,5 +1,7 @@
 
+import { boardModel } from '~/models/boardModel'
 import { cardModel } from '~/models/cardModel'
+import { columnModel } from '~/models/columnModel'
 
 const createNew = async (reqBody) => {
     // eslint-disable-next-line no-useless-catch
@@ -15,7 +17,9 @@ const createNew = async (reqBody) => {
         const getNewCard = await cardModel.findOneById(createdCard.insertedId)
         //Làm thêm các xử lý logic khác với các collection khác tùy đặc thù dự án
         //Bắn email, notification về cho admin khi có 1 cái card mới được tạo
-
+        if (getNewCard) {
+            await columnModel.pushCardOrderIds(getNewCard)
+        }
         //Trả kết quả về, trong service luôn phải có return
         return getNewCard
     } catch (error) { throw error }
@@ -23,5 +27,4 @@ const createNew = async (reqBody) => {
 
 export const cardService = {
     createNew
-
 }
