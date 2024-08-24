@@ -42,8 +42,27 @@ const findOneById = async (id) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+const INVALID_UPDATE_FILEDS = ['_id', 'boardId', 'createdAt']
+
+const update = async (cardId, updateData) => {
+  try {
+    //Lọc những field mà chúng ta không cho phép cập nhật linh tinh
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FILEDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+    //Đối với những dữ liệu liên quan ObjId biến đổi ở đây
+    if (updateData.columnId) updateData.columnId = new ObjectId(updateData.columnId)
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $set: updateData },
+      { returnDocument: 'after' }) //Sẽ trả về kết quả mới sau khi cập nhật
+    return result
+  } catch (error) { throw new Error(error) }
+}
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
-  createNew, findOneById
+  createNew, findOneById, update
 }
