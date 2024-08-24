@@ -44,6 +44,12 @@ const findOneById = async (id) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+const deleteOneById = async (id) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) })
+    return result
+  } catch (error) { throw new Error(error) }
+}
 
 const pushCardOrderIds = async (card) => {
   try {
@@ -76,5 +82,5 @@ const update = async (columnId, updateData) => {
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
-  createNew, findOneById, pushCardOrderIds, update
+  createNew, findOneById, pushCardOrderIds, update, deleteOneById
 }
