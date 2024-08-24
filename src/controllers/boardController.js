@@ -29,9 +29,18 @@ const update = async (req, res, next) => {
     res.status(StatusCodes.OK).json(updatedBoard)
   } catch (error) { next(error) }
 }
+const moveCardToDifferentColumn = async (req, res, next) => {
+  try {
+    //Điều hướng dữ liệu sang tầng Service
+    const result = await boardService.moveCardToDifferentColumn(req.body)
+    // Có kết quả thì trả về phía Client
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
 
 export const boardController = {
   createNew,
   getDetails,
-  update
+  update,
+  moveCardToDifferentColumn
 }
