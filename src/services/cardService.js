@@ -1,4 +1,5 @@
 
+import { GET_DB } from '~/config/mongodb'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 
@@ -23,7 +24,6 @@ const createNew = async (reqBody) => {
     return getNewCard
   } catch (error) { throw error }
 }
-
 export const cardService = {
   createNew
 }
