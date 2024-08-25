@@ -22,11 +22,19 @@ const START_SERVER = () => {
   app.use('/v1', APIs_V1)
   //Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
-
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Hello ${env.AUTHOR}, I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
-  })
+  //Môi trường production
+  if (env.BUILD_MODE === 'production') {
+    app.listen(process.env.PORT, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Hello ${env.AUTHOR}, Production: I am running at ${process.env.PORT}`)
+    })
+  } else {
+    //Môi trường Local dev
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Hello ${env.AUTHOR}, Dev:I am running at ${env.LOCAL_DEV_APP_HOST} and ${env.LOCAL_DEV_APP_PORT}`)
+    })
+  }
   //Thực hiện các tác vụ cleanup trước khi dừng server
   exitHook(() => {
     ClOSE_DB()
