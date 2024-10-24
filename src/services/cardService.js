@@ -1,5 +1,4 @@
 
-import { GET_DB } from '~/config/mongodb'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 

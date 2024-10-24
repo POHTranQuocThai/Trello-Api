@@ -1,11 +1,4 @@
-/**
- * YouTube: TrungQuanDev - Một Lập Trình Viên
- * Created by trungquandev.com's author on Sep 27, 2023
- */
-/**
- * Simple method to Convert a String to Slug
- * Các bạn có thể tham khảo thêm kiến thức liên quan ở đây: https://byby.dev/js-slugify-string
- */
+
 const slugify = (val) => {
   if (!val) return ''
   return String(val)

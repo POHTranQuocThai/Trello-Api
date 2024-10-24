@@ -1,9 +1,4 @@
-/**
- * Updated by trungquandev.com's author on Sep 27 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- * NOTE: (Muốn hiểu rõ hơn về code trong file này thì vui lòng xem video 54 trong bộ MERN Stack trên kênh Youtube của mình.)
-*/
+
 
 /**
  * Định nghĩa riêng một Class ApiError kế thừa class Error sẵn (điều này cần thiết và là Best Practice vì class Error nó là class built-in sẵn)
