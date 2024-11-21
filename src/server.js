@@ -8,9 +8,19 @@ import { APIs_V1 } from './routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 import cors from 'cors'
 import { corsOptions } from './config/cors'
+import cookieParser from 'cookie-parser'
 
 const START_SERVER = () => {
   const app = express()
+  //Cấu hình cookie parser
+  app.use(cookieParser())
+
+  //Fix cái lỗi Cache from disk của ExpressJs
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
+
   app.use(cors(corsOptions))
   //enable req.body json data
   app.use(express.json())
