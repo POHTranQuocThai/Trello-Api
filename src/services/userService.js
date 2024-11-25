@@ -81,11 +81,27 @@ const login = async (reqbody) => {
 
         const refreshToken = await JwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, env.REFRESH_TOKEN_LIFE)
 
-        return { accessToken, refreshToken, ...pickUser() }
+        return { accessToken, refreshToken, ...pickUser(existUser) }
     } catch (error) { throw error }
+}
+const refreshToken = async (clientRefreshToken) => {
+    try {
+        const refreshTokenDecoded = await JwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_SECRET_SIGNATURE)
+
+        const userInfo = {
+            _id: refreshTokenDecoded._id,
+            email: refreshTokenDecoded.email
+        }
+
+        const accessToken = await JwtProvider.generateToken(userInfo, refreshTokenDecoded, env.ACCESS_TOKEN_LIFE)
+        return { accessToken }
+    } catch (error) { throw error }
+
+
 }
 export const userService = {
     createNew,
     verifyAccount,
-    login
+    login,
+    refreshToken
 }
