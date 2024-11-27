@@ -59,11 +59,10 @@ const refreshToken = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const userId = req.jwtDecode._id
-    const updateUser = await userService.update(userId, req.body)
+    const userAvatarFile = req.file
+    const updateUser = await userService.update(userId, req.body, userAvatarFile)
     res.status(StatusCodes.OK).json(updateUser)
   } catch (error) { next(error) }
-
-
 }
 export const userController = {
   createNew,

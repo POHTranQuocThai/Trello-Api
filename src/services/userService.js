@@ -8,6 +8,7 @@ import { WEBSITE_DOAMIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -99,7 +100,7 @@ const refreshToken = async (clientRefreshToken) => {
 
 
 }
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     const existUser = await userModel.findOneById(userId)
     if (!existUser) {
@@ -118,7 +119,15 @@ const update = async (userId, reqBody) => {
       updatedUser = await userModel.update(userId, {
         password: bcryptjs.hashSync(reqBody.new_password, 8)
       })
-    } else {
+    } else if (userAvatarFile) {
+      //Trường hợp upload file lên Cloud Storage
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+      //Lưu lại url(secure_url) của cái file ảnh vào trong database
+      updatedUser = await userModel.update(userId, {
+        avatar: uploadResult.secure_url
+      })
+    }
+    else {
       //Truong hop cap nhat thong tin chung
       updatedUser = await userModel.update(userId, reqBody)
     }
