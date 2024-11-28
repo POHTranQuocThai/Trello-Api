@@ -9,7 +9,7 @@ import ApiError from '~/utils/ApiError'
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
 import slugify from '~/utils/formatters'
 
-const createNew = async (reqBody) => {
+const createNew = async (userId, reqBody) => {
   // eslint-disable-next-line no-useless-catch
   try {
     //Xử lý logic dữ liệu tùy đặc thù dự án
@@ -19,7 +19,7 @@ const createNew = async (reqBody) => {
     }
 
     //Gọi tới tầng Model để xử lý lưu bản ghi newBoard vào trong Database
-    const createdBoard = await boardModel.createNew(newBoard)
+    const createdBoard = await boardModel.createNew(userId, newBoard)
     //Lấy bản ghi board sau khi gọi
     const getNewBoard = await boardModel.findOneById(createdBoard.insertedId)
     //Làm thêm các xử lý logic khác với các collection khác tùy đặc thù dự án
@@ -29,10 +29,10 @@ const createNew = async (reqBody) => {
     return getNewBoard
   } catch (error) { throw error }
 }
-const getDetails = async (boardId) => {
+const getDetails = async (userId, boardId) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    const board = await boardModel.getDetails(boardId)
+    const board = await boardModel.getDetails(userId, boardId)
     if (!board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!!')
     }

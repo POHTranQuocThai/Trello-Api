@@ -30,10 +30,14 @@ const INVALID_UPDATE_FILEDS = ['_id', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
-const createNew = async (data) => {
+const createNew = async (userId, data) => {
   try {
     const validData = await validateBeforeCreate(data)
-    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
+    const newBoardToAdd = {
+      ...validData,
+      ownerIds: [new ObjectId(userId)]
+    }
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
     return createdBoard
   } catch (error) { throw new Error(error) }
 
@@ -46,15 +50,20 @@ const findOneById = async (id) => {
   } catch (error) { throw new Error(error) }
 }
 //Query tổng hợp (aggregate) để lấy toàn bộ Columns và cards thuộc về Board
-const getDetails = async (id) => {
+const getDetails = async (userId, boardId) => {
   try {
-    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+    const queryConditions = [
+      { _id: new ObjectId(boardId) },
+      { _destroy: false },
       {
-        $match: {
-          _id: new ObjectId(id),
-          _destroy: false
-        }
-      },
+        $or: [
+          { ownerIds: { $all: [new ObjectId(userId)] } },
+          { memberIds: { $all: [new ObjectId(userId)] } },
+        ]
+      }
+    ]
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      { $match: { $and: queryConditions } },
       {
         $lookup: {
           from: columnModel.COLUMN_COLLECTION_NAME,
@@ -128,7 +137,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
       }
     ]
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
-      { $match: { $and: [queryConditions] } },
+      { $match: { $and: queryConditions } },
       //Sort title của board theo A-Z (mặc định sẽ bị chữ B hoa đứng trước chữ a thường)
       { $sort: { title: 1 } },
       // $facet để xử lý nhiều luông ftrong 1 query
