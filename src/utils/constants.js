@@ -10,3 +10,6 @@ export const BOARD_TYPES = {
     PRIVATE: 'private'
 }
 export const WEBSITE_DOAMIN = (env.BUILD_MODE === 'production') ? env.WEBSITE_DOMAIN_PRODUCTION : env.WEBSITE_DOMAIN_DEVELOPMENT
+
+export const DEFAULT_PAGE = 1
+export const DEFAULT_ITEMS_PER_PAGE = 12
