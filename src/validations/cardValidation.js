@@ -22,7 +22,24 @@ const createNew = async (req, res, next) => {
     next(customError)
   }
 }
-
+const update = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    title: Joi.string().min(3).max(50).trim().strict(),
+    description: Joi.string().optional()
+  })
+  try {
+    //Chỉ định abortEarly: false để trường hợp có nhiều lỗi validation thì trả về tất cả lỗi
+    //ĐỐi với trường hợp update, cho phép unknown để không cần đẩy một số field lớn
+    await correctCondition.validateAsync(req.body, {
+      abortEarly: false,
+      allowUnknown: true
+    })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
 export const cardValidation = {
-  createNew
+  createNew,
+  update
 }
