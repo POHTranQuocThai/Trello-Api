@@ -1,6 +1,7 @@
 
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createNew = async (reqBody) => {
   // eslint-disable-next-line no-useless-catch
@@ -23,13 +24,24 @@ const createNew = async (reqBody) => {
     return getNewCard
   } catch (error) { throw error }
 }
-const update = async (cardId, reqBody) => {
+const update = async (cardId, reqBody, cardCoverFile) => {
   try {
     const updateData = {
       ...reqBody,
       updatedAt: Date.now()
     }
-    const updatedCard = await cardModel.update(updateData)
+    let updatedCard = {}
+    if (cardCoverFile) {
+      //Trường hợp upload file lên Cloud Storage
+      const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'card-covers')
+      //Lưu lại url(secure_url) của cái file ảnh vào trong database
+      updatedCard = await cardModel.update(cardId, {
+        cover: uploadResult.secure_url
+      })
+    } else {
+      //Các trường hợp update chung như title,displayName
+      updatedCard = await cardModel.update(updateData)
+    }
     return updatedCard
   } catch (error) { throw error }
 }

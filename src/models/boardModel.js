@@ -7,6 +7,7 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { paginSkipValue } from '~/utils/algorithms'
+import { userModel } from './userModel'
 
 const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
@@ -25,7 +26,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 
 })
-//Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update 
+//Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update
 const INVALID_UPDATE_FILEDS = ['_id', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -58,7 +59,7 @@ const getDetails = async (userId, boardId) => {
       {
         $or: [
           { ownerIds: { $all: [new ObjectId(userId)] } },
-          { memberIds: { $all: [new ObjectId(userId)] } },
+          { memberIds: { $all: [new ObjectId(userId)] } }
         ]
       }
     ]
@@ -78,6 +79,26 @@ const getDetails = async (userId, boardId) => {
           localField: '_id',
           foreignField: 'boardId',
           as: 'cards'
+        }
+      },
+      {
+        $lookup: {
+          from: userModel.USER_COLLECTION_NAME,
+          localField: 'ownerIds',
+          foreignField: '_id',
+          as: 'owners',
+          //pipeline: trong lookup là để xử lý một or nhiều luồng cần thiết
+          //$project: để chỉ định vài field không muốn lấy về bằng cách gán nó giá trị 0
+          pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+        }
+      },
+      {
+        $lookup: {
+          from: userModel.USER_COLLECTION_NAME,
+          localField: 'memberIds',
+          foreignField: '_id',
+          as: 'members',
+          pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
         }
       }
     ]).toArray()
@@ -126,13 +147,13 @@ const update = async (boardId, updateData) => {
 const getBoards = async (userId, page, itemsPerPage) => {
   try {
     const queryConditions = [
-      //Điều kiện 01: Board chưa bị xóa 
+      //Điều kiện 01: Board chưa bị xóa
       { _destroy: false },
       //Điều kiện 02 : userId đang thực hiện request này nó phải thuộc vào một trong 2 cái mảng ownerIds or memberIds,sử dụng toán tử $all của mongo
       {
         $or: [
           { ownerIds: { $all: [new ObjectId(userId)] } },
-          { memberIds: { $all: [new ObjectId(userId)] } },
+          { memberIds: { $all: [new ObjectId(userId)] } }
         ]
       }
     ]
@@ -145,7 +166,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
         $facet: {
           //Luồng thứ nhất: Query boards
           'queryBoards': [
-            { $skip: paginSkipValue(page, itemsPerPage) },//Bỏ qua số lượng bản ghi của những page trước đó
+            { $skip: paginSkipValue(page, itemsPerPage) }, //Bỏ qua số lượng bản ghi của những page trước đó
             { $limit: itemsPerPage } //Giới hạn tối đa số lượng bản ghi trả về trên 1 page
           ],
           //Luồng 02: Query đếm tổng tất cả số lượng bản ghi boards trong DB và trả về gán vào cái biến tự đặt tên countedAllBoards
@@ -153,7 +174,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
         }
       }
     ],
-      //Khai báo thêm thuộc tính collation locale 'en' fix vụ chữ B trc a 
+      //Khai báo thêm thuộc tính collation locale 'en' fix vụ chữ B trc a
       { collation: { locale: 'en' } }
     ).toArray()
 
@@ -176,3 +197,5 @@ export const boardModel = {
   getBoards
 
 }
+
+
