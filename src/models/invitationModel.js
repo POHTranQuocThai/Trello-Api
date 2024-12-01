@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { BOARD_INVITATION_STATUS, INVITATION_TYPES } from '~/utils/constants'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { userModel } from './userModel'
+import { boardModel } from './boardModel'
 
 
 const INVITATION_COLLECTION_NAME = 'invitations'
@@ -76,11 +78,55 @@ const update = async (invitationId, updateData) => {
         return result
     } catch (error) { throw new Error(error) }
 }
+const findByUser = async (userId) => {
+    try {
+        const queryConditions = [
+            { _inviteeId: new ObjectId(userId) }, //Tìm theo người được mời
+            { _destroy: false }
+        ]
+        const results = await GET_DB().collection(INVITATION_COLLECTION_NAME).aggregate([
+            { $match: { $and: queryConditions } },
+            {
+                $lookup: {
+                    from: userModel.USER_COLLECTION_NAME,
+                    localField: 'inviterId',
+                    foreignField: '_id',
+                    as: 'inviter',
+                    //pipeline: trong lookup là để xử lý một or nhiều luồng cần thiết
+                    //$project: để chỉ định vài field không muốn lấy về bằng cách gán nó giá trị 0
+                    pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+                }
+            },
+            {
+                $lookup: {
+                    from: userModel.USER_COLLECTION_NAME,
+                    localField: 'inviteeId',
+                    foreignField: '_id',
+                    as: 'invitee',
+                    //pipeline: trong lookup là để xử lý một or nhiều luồng cần thiết
+                    //$project: để chỉ định vài field không muốn lấy về bằng cách gán nó giá trị 0
+                    pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+                }
+            },
+            {
+                $lookup: {
+                    from: boardModel.BOARD_COLLECTION_NAME,
+                    localField: 'boardInvitation.boardId',
+                    foreignField: '_id',
+                    as: 'board'
+                }
+            }
+
+        ]).toArray()
+        return results
+    } catch (error) { throw new Error(error) }
+}
 export const invitationModel = {
     createNewBoardInvitation,
     INVITATION_COLLECTION_NAME,
     INVITATION_COLLECTION_SCHEMA,
     findOneById,
-    update
+    update,
+    findByUser
 
 }
