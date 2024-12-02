@@ -2,6 +2,7 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 // Define Collection (name & schema)
@@ -92,8 +93,27 @@ const unshiftNewComment = async (cardId, commentData) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+const updateMembers = async (cardId, incomingMemberInfo) => {
+  try {
+    //Tạo ra một biến updateCondition ban đầu là rỗng
+    let updateCondition = {}
+    if (incomingMemberInfo.action === CARD_MEMBER_ACTIONS.ADD) {
+      updateCondition = { $push: { memberIds: new ObjectId(incomingMemberInfo.userId) } }
+    }
+    if (incomingMemberInfo.action === CARD_MEMBER_ACTIONS.REMOVE) {
+      updateCondition = { $pull: { memberIds: new ObjectId(incomingMemberInfo.userId) } }
+    }
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      updateCondition,
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
+  updateMembers,
   createNew, findOneById, update, deleteManyByColumnId, unshiftNewComment
 }

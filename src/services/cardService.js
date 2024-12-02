@@ -38,6 +38,9 @@ const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
       updatedCard = await cardModel.update(cardId, {
         cover: uploadResult.secure_url
       })
+    } else if (updateData.incomingMemberInfo) {
+      //Trường hợp ADD or REMOVE
+      updatedCard = await cardModel.updateMembers(cardId, updateData.incomingMemberInfo)
     } else if (updateData.commentToAdd) {
       //Tạo dữ liệu comment để thêm vào DB, cần bổ sung thêm những field cần thiết
       const commentData = {
