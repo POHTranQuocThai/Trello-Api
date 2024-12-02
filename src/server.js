@@ -9,6 +9,9 @@ import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 import cors from 'cors'
 import { corsOptions } from './config/cors'
 import cookieParser from 'cookie-parser'
+import http from 'http'
+import socketIo from 'socket.io'
+import { inviteUserToBoardSocket } from './sockets/inviteUserToBoardSocket'
 
 const START_SERVER = () => {
   const app = express()
@@ -28,15 +31,24 @@ const START_SERVER = () => {
   app.use('/v1', APIs_V1)
   //Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
+
+  //Tạo một cái server mới bọc thằng app của express để làm real-time với socket.io
+  const server = http.createServer(app)
+  //khởi tạo biến io với server và cors
+  const io = socketIo(server, { cors: corsOptions })
+  io.on('connection', (socket) => {
+    inviteUserToBoardSocket(socket)
+  })
   //Môi trường production
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       // eslint-disable-next-line no-console
       console.log(`Hello ${env.AUTHOR}, Production: I am running at ${process.env.PORT}`)
     })
   } else {
     //Môi trường Local dev
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    //Dùng server.listen thay vì app.listen vì lúc này server đã bao gồm express app và đã config socket.io
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       // eslint-disable-next-line no-console
       console.log(`Hello ${env.AUTHOR}, Dev:I am running at ${env.LOCAL_DEV_APP_HOST} and ${env.LOCAL_DEV_APP_PORT}`)
     })
