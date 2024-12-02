@@ -67,6 +67,8 @@ const verifyAccount = async (reqBody) => {
 const login = async (reqBody) => {
   try {
     const existUser = await userModel.findOneByEmail(reqBody.email)
+    console.log('🚀 ~ login ~ existUser:', existUser)
+
     if (!existUser) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
     }

@@ -153,7 +153,7 @@ const update = async (boardId, updateData) => {
     return result
   } catch (error) { throw new Error(error) }
 }
-const getBoards = async (userId, page, itemsPerPage) => {
+const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
     const queryConditions = [
       //Điều kiện 01: Board chưa bị xóa
@@ -166,6 +166,16 @@ const getBoards = async (userId, page, itemsPerPage) => {
         ]
       }
     ]
+    //Xử lý query filter cho từng trường hợp search board,vd search theo title
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach(key => {
+        //queryFilters[key] vd queryFilters[title] nếu phía FE đẩy lên q[title]
+        //Có phân biệt chứ hoa thường
+        //queryConditions.push({ [key]: { $regex: queryFilters[key] } })
+        //Ko phân biệt
+        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
+      })
+    }
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       { $match: { $and: queryConditions } },
       //Sort title của board theo A-Z (mặc định sẽ bị chữ B hoa đứng trước chữ a thường)
