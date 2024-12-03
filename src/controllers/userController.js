@@ -20,36 +20,22 @@ const verifyAccount = async (req, res, next) => {
 }
 const login = async (req, res, next) => {
   try {
-    const result = await userService.login(req.body);
-
-    if (!result || !result.accessToken || !result.refreshToken) {
-      throw new Error('Invalid login result: Missing accessToken or refreshToken');
-    }
-
-    const isProduction = process.env.NODE_ENV === 'production';
-
+    const result = await userService.login(req.body)
     res.cookie('access_token', result.accessToken, {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: 'none',
-      maxAge: ms('14 days'),
-    });
+      maxAge: ms('14 days')
+    })
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: 'none',
-      maxAge: ms('14 days'),
-    });
-
-    res.status(StatusCodes.OK).json(result);
-  } catch (error) {
-    if (error.name === 'UnauthorizedError') {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Invalid credentials' });
-    }
-    next(error);
-  }
-};
-
+      maxAge: ms('14 days')
+    })
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
 const logout = async (req, res, next) => {
   try {
     res.clearCookie('accessToken')

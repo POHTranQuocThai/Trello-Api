@@ -18,7 +18,6 @@ const customFileFilter = (req, file, callback) => {
 const upload = multer({
   limits: { fileSize:LIMIT_COMMON_FILE_SIZE },
   fileFilter: customFileFilter
-
 })
 
 export const multerUploadMiddleware = { upload }

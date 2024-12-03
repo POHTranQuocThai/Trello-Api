@@ -81,6 +81,7 @@ const login = async (reqBody) => {
 
     //Tạo ra 2 loại token
     const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
+    console.log('🚀 ~ login ~ env.ACCESS_TOKEN_SECRET_SIGNATURE:', env.ACCESS_TOKEN_SECRET_SIGNATURE)
 
     const refreshToken = await JwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, env.REFRESH_TOKEN_LIFE)
 

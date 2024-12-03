@@ -45,8 +45,8 @@ const getBoards = async (req, res, next) => {
     const userId = req.jwtDecoded._id
     //Page và ItemsPerPage được truyền vào trong query url từ phía FE nên BE sẽ lấy thông qua req.query
     const { page, itemsPerPage, q } = req.query
-    const queryFilter = q
-    const results = await boardService.getBoards(userId, page, itemsPerPage, queryFilter)
+    const queryFilters = q
+    const results = await boardService.getBoards(userId, page, itemsPerPage, queryFilters)
     res.status(StatusCodes.OK).json(results)
   } catch (error) { next(error) }
 }
