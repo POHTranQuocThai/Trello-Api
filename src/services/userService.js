@@ -8,6 +8,7 @@ import { WEBSITE_DOAMIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
+
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createNew = async (reqBody) => {
@@ -79,9 +80,10 @@ const login = async (reqBody) => {
 
     const userInfo = { _id: existUser._id, email: existUser.email }
 
+    console.log('🚀 ~ login ~ accessToken:', accessToken)
+    console.log('🚀 ~ login ~ env.ACCESS_TOKEN_SECRET_SIGNATURE:', env.ACCESS_TOKEN_SECRET_SIGNATURE)
     //Tạo ra 2 loại token
     const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
-    console.log('🚀 ~ login ~ env.ACCESS_TOKEN_SECRET_SIGNATURE:', env.ACCESS_TOKEN_SECRET_SIGNATURE)
 
     const refreshToken = await JwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, env.REFRESH_TOKEN_LIFE)
 
