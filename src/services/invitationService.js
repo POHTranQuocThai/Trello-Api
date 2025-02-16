@@ -12,7 +12,7 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
     const inviter = await userModel.findOneById(inviterId)
     //Người được mời
     const invitee = await userModel.findOneByEmail(reqBody.inviteeEmail)
-    const board = await userModel.findOneById(reqBody.boardId)
+    const board = await boardModel.findOneById(reqBody.boardId)
 
     if (!invitee || !inviter || !board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Inviter, Invitee or Board not found!!')

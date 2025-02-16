@@ -5,7 +5,6 @@ import ApiError from '~/utils/ApiError'
 
 
 const isAuthorized = async (req, res, next) => {
-  console.log('🚀 ~ isAuthorized ~ req:', req)
   //Lấy access token phía request cookies phía client - trong file authorizedAxios
   const clientAccessToken = req.cookies?.access_token
   //Nếu không tồn tại

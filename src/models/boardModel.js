@@ -153,6 +153,61 @@ const update = async (boardId, updateData) => {
     return result
   } catch (error) { throw new Error(error) }
 }
+// const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
+//   try {
+//     // Chuyển userId thành ObjectId
+//     const userObjectId = new ObjectId(userId);
+
+//     const queryConditions = [
+//       // Điều kiện board chưa bị xóa
+//       { _destroy: false },
+//       // Điều kiện userId phải thuộc một trong ownerIds hoặc memberIds
+//       {
+//         $or: [
+//           { ownerIds: { $all: [userObjectId] } },
+//           { memberIds: { $all: [userObjectId] } }
+//         ]
+//       }
+//     ];
+
+//     // Xử lý các filter tìm kiếm (nếu có)
+//     if (queryFilters) {
+//       Object.keys(queryFilters).forEach(key => {
+//         const filterValue = queryFilters[key];
+//         // Sử dụng RegExp để tìm kiếm không phân biệt chữ hoa chữ thường
+//         queryConditions.push({ [key]: { $regex: new RegExp(filterValue, 'i') } });
+//       });
+//     }
+
+//     // Thực hiện truy vấn MongoDB
+//     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+//       { $match: { $and: queryConditions } },
+//       { $sort: { title: 1 } }, // Sắp xếp theo title
+//       {
+//         $facet: {
+//           'queryBoards': [
+//             { $skip: paginSkipValue(page, itemsPerPage) }, // Skip các bản ghi của các trang trước
+//             { $limit: itemsPerPage } // Giới hạn số lượng bản ghi trả về
+//           ],
+//           'queryTotalBoards': [{ $count: 'countedAllBoards' }] // Đếm tổng số boards
+//         }
+//       }
+//     ], { collation: { locale: 'en' } }).toArray();
+
+//     // Kiểm tra kết quả truy vấn
+
+//     const res = query[0];
+
+//     return {
+//       boards: res.queryBoards || [],
+//       totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0
+//     };
+//   } catch (error) {
+//     console.error('Error fetching boards:', error);
+//     throw error;
+//   }
+// };
+
 const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
     const queryConditions = [
@@ -196,8 +251,10 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
       //Khai báo thêm thuộc tính collation locale 'en' fix vụ chữ B trc a
       { collation: { locale: 'en' } }
     ).toArray()
+    console.log('🚀 ~ getBoards ~ query:', query)
 
     const res = query[0]
+    console.log('🚀 ~ getBoards ~ res:', res)
     return {
       boards: res.queryBoards || [],
       totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0

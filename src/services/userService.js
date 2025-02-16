@@ -68,7 +68,6 @@ const verifyAccount = async (reqBody) => {
 const login = async (reqBody) => {
   try {
     const existUser = await userModel.findOneByEmail(reqBody.email)
-    console.log('🚀 ~ login ~ existUser:', existUser)
 
     if (!existUser) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
@@ -80,8 +79,6 @@ const login = async (reqBody) => {
 
     const userInfo = { _id: existUser._id, email: existUser.email }
 
-    console.log('🚀 ~ login ~ accessToken:', accessToken)
-    console.log('🚀 ~ login ~ env.ACCESS_TOKEN_SECRET_SIGNATURE:', env.ACCESS_TOKEN_SECRET_SIGNATURE)
     //Tạo ra 2 loại token
     const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
 

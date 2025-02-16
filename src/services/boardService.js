@@ -6,8 +6,8 @@ import { boardModel } from '~/models/boardModel'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import ApiError from '~/utils/ApiError'
-import { DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
-import slugify from '~/utils/formatters'
+import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
+import { slugify } from '~/utils/formatters'
 
 const createNew = async (userId, reqBody) => {
   // eslint-disable-next-line no-useless-catch
@@ -82,7 +82,7 @@ const moveCardToDifferentColumn = async (reqBody) => {
 }
 const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
   try {
-    if (!page) page = DEFAULT_ITEMS_PER_PAGE
+    if (!page) page = DEFAULT_PAGE
     if (!itemsPerPage) itemsPerPage = DEFAULT_ITEMS_PER_PAGE
 
     const results = await boardModel.getBoards(userId, parseInt(page, 10), parseInt(itemsPerPage, 10), queryFilters)
